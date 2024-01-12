@@ -58,7 +58,7 @@
             ebs:
               delete_on_termination: true
               volume_type: io2
-              volume_size: 128
+              volume_size: 256
               iops: 3000
       register: ec2
 
@@ -71,7 +71,7 @@
       wait_for:
         host: "{{ ec2.instances[0]['public_ip_address'] }}"
         port: 22
-        timeout: 240
+        timeout: 320
         state: started
 
 - name: AWS

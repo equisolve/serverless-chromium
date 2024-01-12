@@ -15,7 +15,7 @@ However, it quickly became difficult to maintain because of the pace of `puppete
 
 ## Install
 
-[`puppeteer` ships with a prefered version of `chromium`](https://pptr.dev/faq/#q-why-doesnt-puppeteer-vxxx-work-with-chromium-vyyy). In order to figure out what version of `@sparticuz/chromium` you will need, please visit [Puppeteer's Chromium Support page](https://pptr.dev/chromium-support).
+[`puppeteer` ships with a preferred version of `chromium`](https://pptr.dev/faq/#q-why-doesnt-puppeteer-vxxx-work-with-chromium-vyyy). In order to figure out what version of `@sparticuz/chromium` you will need, please visit [Puppeteer's Chromium Support page](https://pptr.dev/chromium-support).
 
 > For example, as of today, the latest version of `puppeteer` is `18.0.5`. The latest version of `chromium` stated on `puppeteer`'s support page is `106.0.5249.0`. So you need to install `@sparticuz/chromium@106`.
 
@@ -26,7 +26,7 @@ npm install --save puppeteer-core@$PUPPETEER_VERSION
 npm install --save-dev @sparticuz/chromium@$CHROMIUM_VERSION
 ```
 
-If your vendor does not allow large deploys (`chromium.br` is 50+ MB), you'll need to host the `chromium-v#-pack.tar` separatly and use the [`@sparticuz/chromium-min` package](https://github.com/Sparticuz/chromium#-min-package).
+If your vendor does not allow large deploys (`chromium.br` is 50+ MB), you'll need to host the `chromium-v#-pack.tar` separately and use the [`@sparticuz/chromium-min` package](https://github.com/Sparticuz/chromium#-min-package).
 
 ```shell
 npm install --save @sparticuz/chromium-min@$CHROMIUM_VERSION
@@ -39,7 +39,7 @@ If you wish to install an older version of Chromium, take a look at [@sparticuz/
 The @sparticuz/chromium version schema is as follows:
 `MajorChromiumVersion.MinorChromiumIncrement.@Sparticuz/chromiumPatchLevel`
 
-Beacuse this package follows Chromium's releases, it does NOT follow semantic versioning. **Breaking changes can occur with the 'patch' level.** Please check the release notes for information on breaking changes.
+Because this package follows Chromium's releases, it does NOT follow semantic versioning. **Breaking changes can occur with the 'patch' level.** Please check the release notes for information on breaking changes.
 
 ## Usage
 
@@ -157,7 +157,7 @@ Here are some example projects and help with other services
 - [Serverless Framework with Lambda Layer](https://github.com/Sparticuz/chromium/tree/master/examples/serverless-with-lambda-layer)
 - [Serverless Framework with Pre-existing Lambda Layer](https://github.com/Sparticuz/chromium/tree/master/examples/serverless-with-preexisting-lambda-layer)
 - [Chromium-min](https://github.com/Sparticuz/chromium/tree/master/examples/remote-min-binary)
-- AWS SAM _TODO_
+- [AWS SAM](https://github.com/Sparticuz/chromium/tree/master/examples/aws-sam)
 - [Webpack](https://github.com/Sparticuz/chromium/issues/24#issuecomment-1343196897)
 - [Netlify](https://github.com/Sparticuz/chromium/issues/24#issuecomment-1414107620)
 
@@ -171,7 +171,7 @@ npx @puppeteer/browsers install chromium@latest --path /tmp/localChromium
 
 For more information on installing a specific version of `chromium`, checkout [@puppeteer/browsers](https://www.npmjs.com/package/@puppeteer/browsers).
 
-For example, you can set your code to use an ENV variable such as `IS_LOCAL`, then use if/else statments to direct puppeteer to the correct environment.
+For example, you can set your code to use an ENV variable such as `IS_LOCAL`, then use if/else statements to direct puppeteer to the correct environment.
 
 ```javascript
 const browser = await puppeteer.launch({
@@ -183,6 +183,24 @@ const browser = await puppeteer.launch({
   headless: process.env.IS_LOCAL ? false : chromium.headless,
 });
 ```
+
+## Frequently asked questions
+
+### Can I use ARM or Graviton instances?
+
+Amazon's default Lambda base image is quite old at this point and does not support newer versions of `glibc` that chromium requires. When Amazon Linux 2023 comes to Lambda as the default base image, ARM support should be possible. Ref: https://github.com/Sparticuz/chrome-aws-lambda/pull/11, https://github.com/aws/aws-lambda-base-images/issues/59
+
+### Can I use Google Chrome or Chrome for Testing, what is headless_shell?
+
+`headless_shell` is a purpose built version of `chromium` specific for headless purposes. It does not include the GUI at all and only works via remote debugging connection. Ref: https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md, https://source.chromium.org/chromium/chromium/src/+/main:headless/app/headless_shell.cc
+
+### Can I use the "new" Headless mode?
+
+From what I can tell, `headless_shell` does not seem to include support for the "new" headless mode.
+
+### It doesn't work with Webpack!?!
+
+Try marking this package as an external. Ref: https://webpack.js.org/configuration/externals/
 
 ## Fonts
 
