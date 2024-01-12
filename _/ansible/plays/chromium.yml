@@ -275,16 +275,16 @@
       args:
         chdir: /srv/source/chromium/src
 
-    - name: Get arguement list
-      shell: |
-        gn args out/Headless --list
-      args:
-        chdir: /srv/source/chromium/src
-      register: result
+    # - name: Get arguement list
+    #   shell: |
+    #     gn args out/Headless --list
+    #   args:
+    #     chdir: /srv/source/chromium/src
+    #   register: result
 
-    - name: Print return information from the previous task
-      ansible.builtin.debug:
-        var: result
+    # - name: Print return information from the previous task
+    #   ansible.builtin.debug:
+    #     var: result
 
     - name: Compiling Headless Chromium
       shell: |
