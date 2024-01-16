@@ -6,4 +6,5 @@ export declare const isValidUrl: (input: string) => boolean;
  * @returns boolean indicating if the running instance is inside a Lambda container
  */
 export declare const isRunningInAwsLambda: () => boolean;
+export declare const isRunningInAwsLambdaNode20: () => boolean;
 export declare const downloadAndExtract: (url: string) => Promise<string>;

@@ -10,15 +10,31 @@ const node_url_1 = require("node:url");
 const helper_1 = require("./helper");
 if ((0, helper_1.isRunningInAwsLambda)()) {
     if (process.env["FONTCONFIG_PATH"] === undefined) {
-        process.env["FONTCONFIG_PATH"] = "/tmp/aws";
+        process.env["FONTCONFIG_PATH"] = "/tmp/fonts";
     }
     if (process.env["LD_LIBRARY_PATH"] === undefined) {
-        process.env["LD_LIBRARY_PATH"] = "/tmp/aws/lib";
+        process.env["LD_LIBRARY_PATH"] = "/tmp/al2/lib";
     }
-    else if (process.env["LD_LIBRARY_PATH"].startsWith("/tmp/aws/lib") !== true) {
+    else if (process.env["LD_LIBRARY_PATH"].startsWith("/tmp/al2/lib") !== true) {
         process.env["LD_LIBRARY_PATH"] = [
             ...new Set([
-                "/tmp/aws/lib",
+                "/tmp/al2/lib",
+                ...process.env["LD_LIBRARY_PATH"].split(":"),
+            ]),
+        ].join(":");
+    }
+}
+if ((0, helper_1.isRunningInAwsLambdaNode20)()) {
+    if (process.env["FONTCONFIG_PATH"] === undefined) {
+        process.env["FONTCONFIG_PATH"] = "/tmp/fonts";
+    }
+    if (process.env["LD_LIBRARY_PATH"] === undefined) {
+        process.env["LD_LIBRARY_PATH"] = "/tmp/al2023/lib";
+    }
+    else if (process.env["LD_LIBRARY_PATH"].startsWith("/tmp/al2023/lib") !== true) {
+        process.env["LD_LIBRARY_PATH"] = [
+            ...new Set([
+                "/tmp/al2023/lib",
                 ...process.env["LD_LIBRARY_PATH"].split(":"),
             ]),
         ].join(":");
@@ -127,13 +143,13 @@ class Chromium {
         ];
         const puppeteerEnableFeatures = ["NetworkServiceInProcess2"];
         const chromiumFlags = [
-            "--disable-domain-reliability",
-            "--disable-print-preview",
-            "--disable-speech-api",
-            "--disk-cache-size=33554432",
-            "--mute-audio",
-            "--no-default-browser-check",
-            "--no-pings",
+            "--disable-domain-reliability", // https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md#background-networking
+            "--disable-print-preview", // https://source.chromium.org/search?q=lang:cpp+symbol:kDisablePrintPreview&ss=chromium
+            "--disable-speech-api", // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSpeechAPI&ss=chromium
+            "--disk-cache-size=33554432", // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
+            "--mute-audio", // https://source.chromium.org/search?q=lang:cpp+symbol:kMuteAudio&ss=chromium
+            "--no-default-browser-check", // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
+            "--no-pings", // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
             "--single-process", // Needs to be single-process to avoid `prctl(PR_SET_NO_NEW_PRIVS) failed` error
         ];
         const chromiumDisableFeatures = [
@@ -143,9 +159,9 @@ class Chromium {
         ];
         const chromiumEnableFeatures = ["SharedArrayBuffer"];
         const graphicsFlags = [
-            "--hide-scrollbars",
-            "--ignore-gpu-blocklist",
-            "--in-process-gpu",
+            "--hide-scrollbars", // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
+            "--ignore-gpu-blocklist", // https://source.chromium.org/search?q=lang:cpp+symbol:kIgnoreGpuBlocklist&ss=chromium
+            "--in-process-gpu", // https://source.chromium.org/search?q=lang:cpp+symbol:kInProcessGPU&ss=chromium
             "--window-size=1920,1080", // https://source.chromium.org/search?q=lang:cpp+symbol:kWindowSize&ss=chromium
         ];
         // https://chromium.googlesource.com/chromium/src/+/main/docs/gpu/swiftshader.md
@@ -153,11 +169,11 @@ class Chromium {
             ? graphicsFlags.push("--use-gl=angle", "--use-angle=swiftshader")
             : graphicsFlags.push("--disable-webgl");
         const insecureFlags = [
-            "--allow-running-insecure-content",
-            "--disable-setuid-sandbox",
-            "--disable-site-isolation-trials",
-            "--disable-web-security",
-            "--no-sandbox",
+            "--allow-running-insecure-content", // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
+            "--disable-setuid-sandbox", // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSetuidSandbox&ss=chromium
+            "--disable-site-isolation-trials", // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSiteIsolation&ss=chromium
+            "--disable-web-security", // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableWebSecurity&ss=chromium
+            "--no-sandbox", // https://source.chromium.org/search?q=lang:cpp+symbol:kNoSandbox&ss=chromium
             "--no-zygote", // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium
         ];
         const headlessFlags = [
@@ -225,14 +241,20 @@ class Chromium {
             throw new Error(`The input directory "${input}" does not exist.`);
         }
         // Extract the required files
-        const promises = [lambdafs_1.default.inflate(`${input}/chromium.br`)];
+        const promises = [
+            lambdafs_1.default.inflate(`${input}/chromium.br`),
+            lambdafs_1.default.inflate(`${input}/fonts.tar.br`),
+        ];
         if (this.graphics) {
             // Only inflate graphics stack if needed
             promises.push(lambdafs_1.default.inflate(`${input}/swiftshader.tar.br`));
         }
         if ((0, helper_1.isRunningInAwsLambda)()) {
             // If running in AWS Lambda, extract more required files
-            promises.push(lambdafs_1.default.inflate(`${input}/aws.tar.br`));
+            promises.push(lambdafs_1.default.inflate(`${input}/al2.tar.br`));
+        }
+        if ((0, helper_1.isRunningInAwsLambdaNode20)()) {
+            promises.push(lambdafs_1.default.inflate(`${input}/al2023.tar.br`));
         }
         // Await all extractions
         const result = await Promise.all(promises);

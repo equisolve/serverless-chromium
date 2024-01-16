@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadAndExtract = exports.isRunningInAwsLambda = exports.isValidUrl = void 0;
+exports.downloadAndExtract = exports.isRunningInAwsLambdaNode20 = exports.isRunningInAwsLambda = exports.isValidUrl = void 0;
 const node_fs_1 = require("node:fs");
 const follow_redirects_1 = require("follow-redirects");
 const node_os_1 = require("node:os");
@@ -23,16 +23,30 @@ exports.isValidUrl = isValidUrl;
  */
 const isRunningInAwsLambda = () => {
     if (process.env["AWS_EXECUTION_ENV"] &&
-        /^AWS_Lambda_nodejs/.test(process.env["AWS_EXECUTION_ENV"]) === true) {
+        process.env["AWS_EXECUTION_ENV"].includes("AWS_Lambda_nodejs") &&
+        !process.env["AWS_EXECUTION_ENV"].includes("20.x")) {
         return true;
     }
     else if (process.env["AWS_LAMBDA_JS_RUNTIME"] &&
-        /^nodejs/.test(process.env["AWS_LAMBDA_JS_RUNTIME"]) === true) {
+        process.env["AWS_LAMBDA_JS_RUNTIME"].includes("nodejs") &&
+        !process.env["AWS_LAMBDA_JS_RUNTIME"].includes("20.x")) {
         return true;
     }
     return false;
 };
 exports.isRunningInAwsLambda = isRunningInAwsLambda;
+const isRunningInAwsLambdaNode20 = () => {
+    if (process.env["AWS_EXECUTION_ENV"] &&
+        process.env["AWS_EXECUTION_ENV"].includes("20.x")) {
+        return true;
+    }
+    else if (process.env["AWS_LAMBDA_JS_RUNTIME"] &&
+        process.env["AWS_LAMBDA_JS_RUNTIME"].includes("20.x")) {
+        return true;
+    }
+    return false;
+};
+exports.isRunningInAwsLambdaNode20 = isRunningInAwsLambdaNode20;
 const downloadAndExtract = async (url) => new Promise((resolve, reject) => {
     const getOptions = (0, node_url_1.parse)(url);
     getOptions.maxBodyLength = 60 * 1024 * 1024; // 60mb
