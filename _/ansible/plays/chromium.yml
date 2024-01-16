@@ -250,7 +250,6 @@
           dcheck_always_on = false
           disable_histogram_support = false
           enable_print_preview = true
-          enable_basic_printing = true
           enable_pdf = true
           enable_tagged_pdf = true
           enable_keystone_registration_framework = false
@@ -267,6 +266,8 @@
           use_sysroot = true
           v8_symbol_level = 0
           v8_target_cpu = "x64"
+          pdf_is_complete_lib = true
+          enable_accessibility_service = true
         dest: /srv/source/chromium/src/out/Headless/args.gn
 
     - name: Generating Headless Chromium Configuration
