@@ -1,4 +1,4 @@
-# @sparticuz/chromium (Revised by Equisolve)
+# @sparticuz/chromium (Revised by Equisolve) with accessibility settings
 
 [![@sparticuz/chromium](https://img.shields.io/npm/v/@sparticuz/chromium.svg?style=for-the-badge)](https://www.npmjs.com/package/@sparticuz/chromium)
 [![Chromium](https://img.shields.io/github/size/sparticuz/chromium/bin/chromium.br?label=Chromium&style=for-the-badge)](bin/)
